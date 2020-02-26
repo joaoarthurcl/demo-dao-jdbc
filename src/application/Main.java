@@ -19,14 +19,18 @@ public class Main {
 		System.out.println(seller);
 
 		
-		System.out.println("======= TEST : seller findbyDepartment =======");
+		System.out.println("\n======= TEST 2: seller findbyDepartment =======");
 		Department department = new Department(2, null);
 		List<Seller> list = sellerDao.findByDepartment(department);
 		for(Seller obj : list) {
 			System.out.println(obj);
 		}
 		
-		
+		System.out.println("\n======= TEST 3: seller findAll =======");
+		list = sellerDao.findAll();
+		for(Seller obj : list) {
+			System.out.println(obj);
+		}
 		
 	}
 
