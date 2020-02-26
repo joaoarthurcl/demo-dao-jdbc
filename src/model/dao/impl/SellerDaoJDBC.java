@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import db.DB;
 import db.DbException;
@@ -92,6 +95,54 @@ public class SellerDaoJDBC implements SellerDao { // o dao vai ter uma dependenc
 	public List<Seller> findAll() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<Seller> findByDepartment(Department department) {
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			// vamos buscar todos os campos do seller + nome do departamento o nome do
+			// departamento
+			// ganhou o apelido de DepName, faz um join para buscar os dados de vendedor e
+			// departamento
+			// onde o ID do vendedor seja igual a ?
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.DepartmentId = department.Id "
+					+ "WHERE DepartmentId = ? "
+					+ "ORDER BY Name");
+
+			st.setInt(1, department.getId());
+			
+			rs = st.executeQuery(); // o resultado do comando sql cai na variavel rs
+			
+			//como o resultado pode ter 0 ou mais valores, não pode ser um if, tem que ser um while,
+			//para percorrer o rs enquanto tiver um proximo.
+						
+			List<Seller> list = new ArrayList<>();//como são varios valores, vamos declarar uma lista
+			Map<Integer, Department> map = new HashMap<>(); //será nosso controle para não repetir o mesmo departamento.
+			//o map vazio foi criado para guardar qualquer departamento que for instanciado.
+			while (rs.next()) { 
+				//a cada vez que passar no while, vamos testar se o departamento já existe
+				Department dep = map.get(rs.getInt("DepartmentId"));//vamos passar o id do departamento que estiver no rs.
+				if(dep == null) {
+					dep = instantiateDepartment(rs);
+					map.put(rs.getInt("DepartmentId"), dep);//agora vou salvar o departamento, para que da proxima vez, ele passar no map ver que já existe
+				}
+				
+				
+				Seller obj = instantiateSeller(rs, dep);
+				list.add(obj); // adicionamos o seller na lista
+			}
+			return list; // retorna a lista
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
 	}
 
 }
