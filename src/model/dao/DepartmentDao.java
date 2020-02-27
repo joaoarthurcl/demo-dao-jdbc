@@ -11,7 +11,7 @@ public interface DepartmentDao {
 	
 		void update(Department obj);
 	
-		void deleteById(Department obj);
+		void deleteById(Integer id);
 	
 		Department findById(Integer id);
 	
